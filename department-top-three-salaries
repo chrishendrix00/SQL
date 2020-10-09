@@ -1,0 +1,20 @@
+#https://leetcode.com/problems/department-top-three-salaries/
+/* 
+Write a SQL query to find employees who earn the top three salaries in each of the department. 
+For the above tables, your SQL query should return the following rows (order of rows does not matter).
+*/
+
+
+
+Select distinct d.Name as Department, e1.Name as Employee, e1.Salary 
+From Employee e1
+join 
+    (SELECT *,row_number () over (partition by DepartmentId order by Salary Desc) as row_num
+    from
+        (SELECT distinct Salary, DepartmentId
+          FROM Employee
+         )e1
+    ) e2 on e2.row_num <= 3 and e1.Salary = e2.Salary and e1.DepartmentId = e2.DepartmentId
+join Department d on e1.DepartmentId = d.Id
+
+Order by d.Name desc, e1.Salary desc
