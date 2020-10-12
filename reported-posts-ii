@@ -1,0 +1,15 @@
+/* https://leetcode.com/problems/reported-posts-ii/
+
+Write an SQL query to find the average for daily percentage of posts that got removed after being reported as spam, rounded to 2 decimal places.
+*/
+
+SELECT round(avg(Daily_Ratio),4)*100 as average_daily_percent
+FROM
+    (SELECT count(distinct r.post_id) /count(distinct a.post_id) Daily_Ratio, a.action_date
+
+    FROM Actions a
+    left join Removals r on a.post_id = r.post_id
+
+    WHERE a.action = 'report' and a.extra = 'spam'
+
+    Group by a.action_date)a
