@@ -1,0 +1,28 @@
+/* https://leetcode.com/problems/countries-you-can-safely-invest-in/
+
+A telecommunications company wants to invest in new countries. The company intends to invest in the countries where the 
+average call duration of the calls in this country is strictly greater than the global average call duration.
+
+Write an SQL query to find the countries where this company can invest.
+*/
+
+SELECT country
+FROM 
+    (Select country, sum(call_time) / sum(total_calls) as call_time
+    FROM
+        (Select ct1.name as country, sum(duration) as call_time, count(ct1.name) as total_calls
+        FROM
+        Calls cl
+        left join Person p1 on p1.id = cl.caller_id
+        left join Country ct1 on ct1.country_code = left(p1.phone_number,3)
+        Group by ct1.name
+Union all
+        Select ct2.name, sum(duration), count(ct2.name)
+        FROM
+        Calls cl
+        left join Person p2 on p2.id = cl.callee_id
+        left join Country ct2 on ct2.country_code = left(p2.phone_number,3)
+        Group by ct2.name) temp
+    Group by country) ddd
+join (Select ((2*(sum(duration))) / (2*count(duration)))  as avgg FROM calls) d    
+WHERE call_time > avgg
