@@ -1,0 +1,23 @@
+/* https://leetcode.com/problems/unpopular-books/
+
+Write an SQL query that reports the books that have sold less than 10 copies in the last year, excluding books 
+that have been available for less than 1 month from today. Assume today is 2019-06-23.
+
+*/
+
+Select book_id, name 
+
+from(
+    SELECT b.book_id, b.name, o.quantity
+
+    FROM Books b
+    left join 
+        (SELECT * from orders 
+         where dispatch_date between '2018-06-23' and '2019-06-23') o on b.book_id = o.book_id
+
+    Where timestampdiff(month, b.available_from, '2019-06-23') >= 1
+
+    Group by b.book_id
+    Having (sum(o.quantity) < 10 or o.quantity is null)
+
+    Order by b.book_id)a
