@@ -1,0 +1,36 @@
+/* https://leetcode.com/problems/team-scores-in-football-tournament/
+
+You would like to compute the scores of all teams after all matches. Points are awarded as follows:
+A team receives three points if they win a match (Score strictly more goals than the opponent team).
+A team receives one point if they draw a match (Same number of goals as the opponent team).
+A team receives no points if they lose a match (Score less goals than the opponent team).
+
+Write an SQL query that selects the team_id, team_name and num_points of each team in the tournament after all described matches. 
+Result table should be ordered by num_points (decreasing order). In case of a tie, order the records by team_id (increasing order).
+
+
+*/
+
+SELECT * FROM (
+
+    SELECT t.team_id, t.team_name, case when sum(a.score) is not null then sum(a.score) else 0 end as num_points
+
+    FROM 
+    Teams t
+    left join
+        (SELECT m.host_team as team, 
+                case when m.host_goals > m.guest_goals then 3
+                when m.host_goals = m.guest_goals then 1
+                else 0 end as score
+        FROM matches m
+
+        UNION ALL
+
+        SELECT m.guest_team, 
+                case when m.host_goals < m.guest_goals then 3
+                when m.host_goals = m.guest_goals then 1
+                else 0 end as score
+        FROM matches m) a on t.team_id = a.team
+
+    Group by t.team_id, t.team_name) a
+order by a.num_points desc, a.team_id asc
